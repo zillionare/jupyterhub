@@ -1,4 +1,4 @@
 #!/bin/sh
 
-/usr/sbin/sshd -D
-jupyterhub -f /etc/jupyterhub/jupyterhub_config.py
+/usr/sbin/sshd
+jupyterhub -f /etc/jupyterhub/config.py
