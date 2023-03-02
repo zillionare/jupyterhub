@@ -1,6 +1,7 @@
 FROM ubuntu:focal
 MAINTAINER Aaron_Yang
 
+VOLUME ["/notebooks"]
 ENV PYPI_INDEX_URL=https://mirrors.aliyun.com/pypi/simple
 ARG DEBIAN_FRONTEND=noninteractive
 WORKDIR /
@@ -8,18 +9,17 @@ COPY rootfs ./
 
 RUN apt-get update \
         && apt-get install -qq --no-install-recommends -y openssh-server wget  git \
-        && apt-get install -qq --no-install-recommends -y python3.10 python3-pip build-essential python3.10-dev  vim iputils-ping  npm nodejs libssl-dev libcurl4-openssl-dev python-dev cron \
+        && apt-get install -qq --no-install-recommends -y python3.8 python3-pip build-essential  vim iputils-ping  npm nodejs libssl-dev libcurl4-openssl-dev python3.8-dev \
         && mkdir /var/run/sshd \
         && (echo 'root:root' | chpasswd) \
         && npm install -g configurable-http-proxy \
         && chmod 700 /root/.ssh \
-        && bash /root/miniconda.sh -b -p /conda \
-        && /conda/bin/conda init \
         && pip config set global.index-url https://mirrors.aliyun.com/pypi/simple \
         && pip install jupyterhub \
         && pip install jupyterlab \
         && pip install notebook \
         && pip install jupyterhub-idle-culler \
+        && pip install pycurl \
         && mkdir -p /etc/jupyterhub \
         && jupyterhub --generate-config \
         && mv jupyterhub_config.py /etc/jupyterhub/config.py \
@@ -29,8 +29,7 @@ RUN apt-get update \
         && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
         && useradd -ms /bin/bash admin \
         && (echo 'admin:admin' | chpasswd) \
-        && crontab /etc/cron.d/notebooks
-
+        && ln -s /usr/bin/python3 /usr/bin/python
 
 expose 22
 expose 3181

@@ -1,10 +1,29 @@
 Docker image for jupyter hub.
 # Features
-1. Create user from admin control panel, and user's home dir will be created as also. Default password for the user is its user's name. The user can open terminal to change. And a `notebooks` folder will be created under this user's home. The folder name can be set by `-e spawner_notebook_dir`.
-2. Pull git repo at 0:00:00 every day. Config repo url by `-e repo`. The destination dir is under /root.
-3. Copy notebooks dir from repo to spawned user's notebooks dir, if exists. Use `-e repo_notebook_dir` and `-e spawner_notebook_dir` to set source and destination. You should pass in an absolute path (which should be started with /root).
-4. Shipped with vi, sshd, git.
+1. Create User from admin panel. New user's password is as same as username.
+2. Sync host's notebook files to spawner's notebook_dir.
+3. Shipped with vi, sshd, git.
 
+# Usage
+## Create New User
+First, login with user `admin`. 
+
+![](https://images.jieyu.ai/images/2023/03/20230301235135.png)
+
+Then navigate to "Hub Control Panel":
+
+![](https://images.jieyu.ai/images/2023/03/20230301235234.png)
+
+Then click on "Admin" tab, you can now create new users here:
+
+![](https://images.jieyu.ai/images/2023/03/20230301235321.png)
+
+Once the new user is created, please click on "Spawn Page" button, this will set password for the new created user.
+
+!!! Important
+    Password for new user is as same as its username. Please ask him to change password ASAP.
+
+Now the new user can login using his username and password.
 
 # Secrets
 The container will have `root` and `admin` users by default. Use `admin` to create new hub user.
@@ -14,7 +33,7 @@ The password of root is root, and password for admin is admin.
 we have these configurabel things:
 
 **JupyterHub.base_url**
-use `-e base_url` to set. Default is `/hub`
+use `-e base_url` to set. Default is `/`
 
 **Spawner.notebook_dir**
 use `-e spawner_notebook_dir` to set. Default is `~/notebooks`
@@ -26,11 +45,11 @@ use `-e spawner_default_url` to set, Default is `/lab`
 **spawner_timeout**
 Kill the idle user session when timeout. set by `-e spawner_timeout`, default is 4 hours
 
-**Source notebook's dir**
-use `-e repo_notebook_dir` to tell cron job where to copy initial notebooks for spanwed user.
+**volume mapping**
+use `-v host_notebooks_volume:/notebooks` to map host notebooks dir to container. When new user is created, these notebooks will be copied into his notebooks dir, specified by `spwaner_notebook_dir`.
 
-**repo_url**
-use `-e repo_url` to configure where to pull latest notebooks. This usually should be an url start with `https`, instead of `git`
+!!! Important
+    The copy happend only once for each user. It happends when user first login.
 
 # Network
 sshd is listening on 22, jupyterhub is listening on 3180, http_proxy_api is listening on 3181.

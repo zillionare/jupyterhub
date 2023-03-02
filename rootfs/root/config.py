@@ -32,6 +32,7 @@ c.JupyterHub.services = [
     }
 ]
 
+import distutils
 # hooks
 import os
 import subprocess
@@ -46,20 +47,24 @@ def set_passwd(username:str, password:str):
     if stdout or stderr:
         raise Exception("Error encountered changing the password!")
     
-def create_dir_hook(username):
+def create_dir_hook(spawner):
+    username = spawner.user.name
+
     user_spec_dir = os.environ.get("spawner_notebook_dir", 'notebooks')
 
     dst_dir = os.path.join("/home", username, user_spec_dir)
 
-    src_dir = os.environ.get('repo_notebook_dir',  '/notebooks')
+    src_dir = '/notebooks'
     os.makedirs(dst_dir, exist_ok = True)
-    copy_tree(src_dir, dst_dir)
+    try:
+        copy_tree(src_dir, dst_dir)
+    except distutils.errors.DistutilsFileError:
+        pass
 
     gid = getpwnam(username).pw_gid
     uid = getpwnam(username).pw_uid
     os.chown(dst_dir, uid, gid)
 
     set_passwd(username, username)
-
 
 c.Spawner.pre_spawn_hook = create_dir_hook
