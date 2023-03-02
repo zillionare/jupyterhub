@@ -40,19 +40,65 @@ from distutils.dir_util import copy_tree
 from pwd import getpwnam
 
 
+def chown(_dir: str, uid: int, gid: int):
+    os.chown(_dir, uid, gid)
+    
+    for root, dirs, files in os.walk(_dir):  
+        for momo in dirs:  
+            os.chown(os.path.join(root, momo), uid, gid)
+        for momo in files:
+            os.chown(os.path.join(root, momo), uid, gid)
+
+# create log dir and change logoutput file
+def config_logging(username: str):
+    log_dir = f"/var/log/{username}/"
+    os.makedirs(log_dir, exist_ok=True)
+
+    gid = getpwnam(username).pw_gid
+    uid = getpwnam(username).pw_uid
+    chown(log_dir, uid, gid)
+
+    with open("/etc/zillionare/defaults.yml", "r") as f:
+        dst = []
+
+        for line in f.readlines():
+            if line.find("/var/log/zillionare") != -1:
+                line = line.replace("zillionare", username)
+                dst.append(line)
+                continue
+            else:
+                dst.append(line)
+
+    with open(f"/home/{username}/cheese/config/defaults.yml", "w") as f:
+        f.writelines(dst)
+
 def set_passwd(username:str, password:str):
     p = subprocess.Popen([ "/usr/sbin/chpasswd" ], universal_newlines=True, shell=False, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     (stdout, stderr) = p.communicate(username + ":" + password + "\n")
     assert p.wait() == 0
     if stdout or stderr:
         raise Exception("Error encountered changing the password!")
-    
-def create_dir_hook(spawner):
+
+def spawn_user_hook(spawner):
     username = spawner.user.name
+    gid = getpwnam(username).pw_gid
+    uid = getpwnam(username).pw_uid
 
+    # create config dir
+    os.makedirs(f"/home/{username}/cheese/config", exist_ok=True)
+
+    # config logging
+    config_logging(username)
+
+    # change passwd
+    set_passwd(username, username)
+
+    # create notebooks dir and init files, if it's not existed
     user_spec_dir = os.environ.get("spawner_notebook_dir", 'notebooks')
-
     dst_dir = os.path.join("/home", username, user_spec_dir)
+
+    if os.path.exists(dst_dir):
+        return
 
     src_dir = '/notebooks'
     os.makedirs(dst_dir, exist_ok = True)
@@ -61,10 +107,27 @@ def create_dir_hook(spawner):
     except distutils.errors.DistutilsFileError:
         pass
 
-    gid = getpwnam(username).pw_gid
-    uid = getpwnam(username).pw_uid
-    os.chown(dst_dir, uid, gid)
+    # change own for /home/user
+    chown(f"/home/{username}", uid, gid)
 
-    set_passwd(username, username)
 
-c.Spawner.pre_spawn_hook = create_dir_hook
+c.Spawner.pre_spawn_hook = spawn_user_hook
+# c.InteractiveShellApp.exec_lines = [
+#     "import cfg4py",
+#     "import pandas as pd",
+#     "from coretypes import *",
+#     "from omicron.talib import *",
+#     "from omicron import tf",
+#     "from omicron.models.security import Security",
+#     "from omicron.models.stock import Stock",
+#     "from omicron.plotting.candlestick import Candlestick",
+#     "import omicron",
+#     "from omicron.extensions import *",
+#     "from omicron.talib import *",
+#     "from typing import List, Tuple, Dict, Union, Optional",
+#     "from omicron.talib import valley_detect, rsi_watermarks, rsi_predict_price",
+#     "cfg4py.init(os.path.expanduser('~/cheese/config'))",
+#     "os.environ['all_proxy']=''"
+# ]
+
+    

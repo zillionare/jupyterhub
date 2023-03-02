@@ -3,6 +3,8 @@ Docker image for jupyter hub.
 1. Create User from admin panel. New user's password is as same as username.
 2. Sync host's notebook files to spawner's notebook_dir.
 3. Shipped with vi, sshd, git.
+4. Added talib and zillionare-omicron, configured. This is a private version.
+5. Each user will use ~/cheese/config as configure dir and /var/log/`user`/cheese.log as log file
 
 # Usage
 ## Create New User
