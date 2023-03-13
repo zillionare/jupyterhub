@@ -15,7 +15,7 @@ RUN apt-get update \
     && ln -s /usr/bin/python3 /usr/bin/python \
     && (echo 'root:root' | chpasswd) \
     && pip config set global.index-url https://mirrors.aliyun.com/pypi/simple \
-    && pip install notebook quantstats \
+    && pip install jupyterlab quantstats \
     && pip install pycurl  \
     && cat /root/ta-lib-0.4.0-src.tar.gz | tar -xzv -C /tmp/ \
     && cd /tmp/ta-lib \

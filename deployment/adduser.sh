@@ -3,9 +3,9 @@
 export user=$1
 if [ "$2" = "rw" ]
 then 
-    docker run -d -v /data/course/notebooks/courseware:/home/$user/notebooks/courseware -v /data/course/notebooks/examples:/home/$user/notebooks/examples --name course_$user -e user=$user -e password=$user@cH --net=course zillionare/course
+    docker run -d -v /data/course/notebooks/courseware:/home/$user/notebooks/courseware -v /data/course/notebooks/examples:/home/$user/notebooks/examples --name course_$user -e user=$user -e password=$user@cH --net=course zillionare/courselab
 else
-    docker run -d -v /data/course/notebooks/courseware:/home/$user/notebooks/courseware:ro -v /data/course/notebooks/examples:/home/$user/notebooks/examples:ro --name course_$user -e user=$user -e password=$user@cH --net=course zillionare/course
+    docker run -d -v /data/course/notebooks/courseware:/home/$user/notebooks/courseware:ro -v /data/course/notebooks/examples:/home/$user/notebooks/examples:ro --name course_$user -e user=$user -e password=$user@cH --net=course zillionare/courselab
 fi
 
 # add nginx conf
