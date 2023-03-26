@@ -16,7 +16,7 @@ RUN apt-get update \
     && (echo 'root:root' | chpasswd) \
     && pip config set global.index-url https://mirrors.aliyun.com/pypi/simple \
     && pip install jupyterlab quantstats \
-    && pip install pycurl  \
+    && pip install pycurl Cython==0.29.33 \
     && cat /root/ta-lib-0.4.0-src.tar.gz | tar -xzv -C /tmp/ \
     && cd /tmp/ta-lib \
     && ./configure --prefix=/usr \
