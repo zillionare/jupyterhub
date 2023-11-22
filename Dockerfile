@@ -11,7 +11,7 @@ COPY rootfs ./
 
 RUN apt-get update \
     && apt-get install -qq --no-install-recommends -y wget \
-    && apt-get install -qq --no-install-recommends -y python3.8 python3-pip build-essential vim iputils-ping libssl-dev libcurl4-openssl-dev python3.8-dev \
+    && apt-get install -qq --no-install-recommends -y python3.8 python3-pip build-essential vim iputils-ping libssl-dev libcurl4-openssl-dev python3.8-dev fontconfig \
     && ln -s /usr/bin/python3 /usr/bin/python \
     && (echo 'root:root' | chpasswd) \
     && pip config set global.index-url https://mirrors.aliyun.com/pypi/simple \
@@ -24,7 +24,10 @@ RUN apt-get update \
     && make install \
     && pip install --pre zillionare-omicron \
     && apt-get clean \
-    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
+    && mkdir -p /usr/share/fonts/truetype \
+    && cp /root/WenQuanWeiMiHei.ttf  /usr/share/fonts/truetype/ \
+    && fc-cache -fv
 
 expose 8888
 
