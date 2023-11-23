@@ -1,9 +1,8 @@
 FROM ubuntu:focal
 MAINTAINER Aaron_Yang
 
-ENV user=aaron
-ENV password=aaron@cH
-VOLUME ["/home/$user/notebooks"]
+ENV LAB_USER=zillionare
+VOLUME ["/root/notebooks"]
 ENV PYPI_INDEX_URL=https://mirrors.aliyun.com/pypi/simple
 ARG DEBIAN_FRONTEND=noninteractive
 WORKDIR /
